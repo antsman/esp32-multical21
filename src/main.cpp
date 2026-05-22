@@ -25,7 +25,13 @@
 #include <ArduinoOTA.h>
 #include <PubSubClient.h>
 
+// Use SX1262 implementation for Heltec V3, CC1101 for others
+#ifdef USE_SX1262
+#include "WaterMeter_SX1262.h"
+#else
 #include "WaterMeter.h"
+#endif
+
 #include "credentials.h"
 #include "hwconfig.h"
 
