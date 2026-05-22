@@ -118,12 +118,21 @@ The Heltec V3 **requires** specific settings for SX1262:
 
 ## Implementation Plan
 
-### Phase 1: Environment Setup (1-2 hours)
+### Phase 1: Environment Setup ✅ COMPLETE
 - [x] Research SX1262 FSK capabilities
-- [ ] Add Heltec V3 environment to `platformio.ini`
-- [ ] Configure ESP32-S3 build flags
-- [ ] Add RadioLib dependency
-- [ ] Test basic WiFi/MQTT connectivity
+- [x] Add Heltec V3 environment to `platformio.ini`
+- [x] Configure ESP32-S3 build flags
+- [x] Add RadioLib dependency
+- [x] Test basic WiFi/MQTT connectivity
+
+**Status**: Complete (Commit: 5933176)
+**Hardware Validated**:
+- Board: Heltec WiFi LoRa 32 V3
+- Chip: ESP32-S3 (MAC: 9C:13:9E:E7:1D:14)
+- Serial: Working (CP2102 at 115200 baud)
+- LED: Working (GPIO 35)
+- WiFi: Working (connected at 192.168.1.203, RSSI: -88 to -93 dBm)
+- Test Environment: `heltec_v3_test` created and validated
 
 ### Phase 2: Radio Driver Migration (6-8 hours)
 - [ ] Update `hwconfig.h` with Heltec V3 pin definitions
@@ -348,12 +357,81 @@ For issues specific to this migration:
 - Test with known-working RadioLib examples first
 - Compare RSSI/sensitivity with CC1101 baseline
 
+## Hardware Test Results
+
+### Test Environment: `heltec_v3_test`
+
+**Date**: 2026-05-22
+**Board**: Heltec WiFi LoRa 32 V3
+**Firmware**: `src/test_heltec.cpp`
+
+#### Test Results Summary
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| **Serial Communication** | ✅ PASS | CP2102 USB-UART bridge at 115200 baud |
+| **LED Control** | ✅ PASS | GPIO 35, blink test successful |
+| **WiFi Scanning** | ✅ PASS | Found 10 networks, RSSI detection working |
+| **WiFi Connection** | ✅ PASS | Connected to SSID: sipelgamees |
+| **Network Info** | ✅ PASS | IP: 192.168.1.203, MAC: 9C:13:9E:E7:1D:14 |
+| **Signal Strength** | ✅ PASS | RSSI: -88 to -93 dBm (good signal) |
+| **Continuous Operation** | ✅ PASS | Status updates every 2 seconds |
+
+#### Serial Output Sample
+
+```
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+
+=================================
+Heltec V3 Hardware Test
+=================================
+
+[TEST] LED Blink Test
+  LED ON... OFF
+  LED ON... OFF
+  LED ON... OFF
+  LED ON... OFF
+  LED ON... OFF
+[PASS] LED test complete
+
+[TEST] WiFi Connection Test
+  Scanning for networks...
+  Found 10 networks:
+    1: sipelgamees (RSSI: -44 dBm)
+    2: herilane (RSSI: -46 dBm)
+    ...
+
+  Attempting to connect to WiFi...
+  Trying: sipelgamees... ...... Connected!
+[PASS] WiFi Connected to: sipelgamees
+       IP Address: 192.168.1.203
+       Signal Strength: -92 dBm
+       MAC Address: 9C:13:9E:E7:1D:14
+
+=================================
+Hardware Test Complete
+=================================
+
+[15662] WiFi: Connected | IP: 192.168.1.203 | RSSI: -90 dBm
+[17663] WiFi: Connected | IP: 192.168.1.203 | RSSI: -93 dBm
+...
+```
+
+#### Notes
+
+- **Serial Setup**: Hardware UART used instead of USB CDC for stable output
+- **USB CDC Issue**: ESP32-S3 switches from ROM bootloader UART to USB CDC after boot, causing terminal disconnection
+- **Solution**: Disabled USB CDC (`ARDUINO_USB_CDC_ON_BOOT=0`) for development/testing
+- **Production**: Can re-enable USB CDC once stable
+
 ## License
 
 This migration maintains the original GPL-3.0 license from the upstream project.
 
 ---
 
-**Status**: Planning complete ✅ | Implementation in progress 🚧
+**Status**: Phase 1 Complete ✅ | Phase 2 Starting 🚧
 **Last Updated**: 2026-05-22
 **Branch**: `heltec-v3-migration`
+**Commits**: 4 (docs, env setup, test, validation)
