@@ -14,7 +14,14 @@
 void setup() {
     // Initialize serial
     Serial.begin(115200);
-    delay(1000);  // Wait for serial to initialize
+
+    // Wait longer for USB CDC to initialize
+    delay(2000);
+
+    // Ensure USB CDC is ready
+    while (!Serial && millis() < 5000) {
+        delay(100);
+    }
 
     Serial.println("\n\n=================================");
     Serial.println(TEST_NAME);
