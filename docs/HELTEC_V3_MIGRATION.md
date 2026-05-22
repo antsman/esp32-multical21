@@ -134,13 +134,39 @@ The Heltec V3 **requires** specific settings for SX1262:
 - WiFi: Working (connected at 192.168.1.203, RSSI: -88 to -93 dBm)
 - Test Environment: `heltec_v3_test` created and validated
 
-### Phase 2: Radio Driver Migration (6-8 hours)
-- [ ] Update `hwconfig.h` with Heltec V3 pin definitions
-- [ ] Rewrite `WaterMeter.cpp` to use RadioLib SX1262 API
-- [ ] Configure FSK parameters for WMBus Mode C1
-- [ ] Implement sync word detection (0x543D preamble)
-- [ ] Port interrupt handling from GDO0 to DIO1
-- [ ] Handle TCXO and RF switch configuration
+### Phase 2: Radio Driver Migration ⚠️ BLOCKED (80% complete)
+- [x] Update `hwconfig.h` with Heltec V3 pin definitions
+- [x] Create `WaterMeter_SX1262.cpp` using RadioLib API
+- [x] Implement sync word detection (0x543D preamble)
+- [x] Port interrupt handling from GDO0 to DIO1
+- [x] Validate SX1262 hardware (LoRa mode works)
+- [ ] **BLOCKED**: Configure FSK mode for WMBus Mode C1
+
+**Status**: Blocked at FSK initialization (Commit: fe4ceeb)
+
+**What Works**:
+- ✅ SX1262 hardware initialization (LoRa mode via `begin()`)
+- ✅ SPI communication (pins: SCK=9, MISO=11, MOSI=10, NSS=8)
+- ✅ Frequency setting (868.95 MHz)
+- ✅ DIO2 RF switch configuration
+- ✅ DIO1 interrupt system (tested, functional)
+- ✅ Receiver operation (stable 120+ seconds)
+- ✅ Driver architecture complete
+
+**Blocker**:
+- ❌ `beginFSK()` fails with error -104 (RADIOLIB_ERR_INVALID_TCXO_VOLTAGE)
+- Tested TCXO voltages: 3.3V, 1.8V, 2.2V, 2.4V, 3.0V - all fail
+- `begin()` works without TCXO parameter (suggests board manages TCXO internally)
+- FSK vs LoRa mode switching not yet solved
+
+**Investigation Needed**:
+1. RadioLib Heltec V3 board variant FSK examples
+2. Manual FSK configuration after `begin()` (individual setters)
+3. RadioLib version compatibility with Heltec V3
+4. Direct SX126x register access for FSK mode
+5. Community solutions for Heltec V3 + RadioLib FSK
+
+**Test Environment**: `heltec_v3_radio_test` validates hardware
 
 ### Phase 3: Testing & Validation (3-4 hours)
 - [ ] Test WMBus frame reception from Multical 21
@@ -425,13 +451,45 @@ Hardware Test Complete
 - **Solution**: Disabled USB CDC (`ARDUINO_USB_CDC_ON_BOOT=0`) for development/testing
 - **Production**: Can re-enable USB CDC once stable
 
+## Troubleshooting
+
+### SX1262 FSK Initialization Fails (Error -104)
+
+**Symptom**: `beginFSK()` returns error code -104 (RADIOLIB_ERR_INVALID_TCXO_VOLTAGE)
+
+**Tested Solutions** (all failed):
+- ❌ TCXO voltages: 1.8V, 2.2V, 2.4V, 3.0V, 3.3V
+- ❌ `beginFSK()` with explicit parameters
+- ❌ `beginFSK()` with TCXO=0 (board-managed)
+- ❌ `beginFSK()` without TCXO parameter
+
+**What Works**:
+- ✅ `begin()` for LoRa mode (no TCXO parameter)
+- ✅ Hardware fully functional in LoRa mode
+- ✅ All individual setters work (frequency, RF switch, etc.)
+
+**Hypothesis**:
+Heltec V3 board variant may have specific TCXO handling that conflicts with RadioLib's FSK initialization. The TCXO might be board-controlled and not software-configurable.
+
+**Potential Solutions to Investigate**:
+1. **RadioLib board variants**: Check if there's a Heltec-specific initialization sequence
+2. **Manual mode switch**: Call `begin()`, then manually configure FSK registers
+3. **RadioLib versions**: Try older/newer versions that might handle Heltec V3 differently
+4. **Direct register access**: Use SX126x commands to bypass RadioLib's validation
+5. **Community**: Search for RadioLib + Heltec V3 + FSK examples
+
+**Workaround Status**: None yet - blocking WMBus reception
+
 ## License
 
 This migration maintains the original GPL-3.0 license from the upstream project.
 
 ---
 
-**Status**: Phase 1 Complete ✅ | Phase 2 Starting 🚧
+**Status**: Phase 1 Complete ✅ | Phase 2 Blocked ⚠️ (80% done)
 **Last Updated**: 2026-05-22
 **Branch**: `heltec-v3-migration`
-**Commits**: 4 (docs, env setup, test, validation)
+**Commits**: 8 total
+- Phase 1: Hardware validation complete
+- Phase 2: SX1262 driver 80% complete, blocked at FSK initialization
+**Next Step**: Resolve RadioLib FSK + Heltec V3 TCXO compatibility
