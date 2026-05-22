@@ -10,7 +10,7 @@
  * Easy to build and configure.
 
 
-### Parts 
+### Parts
 Use these arfilliate links to support me!\
 [CC1101 Module](https://s.click.aliexpress.com/e/_oDW0qJ2) \
 [ESP32-C3 Super Mini](https://s.click.aliexpress.com/e/_c3HOPvoX) \
@@ -30,7 +30,7 @@ Some cables
 | GD2 | Not Connected |
 
 
-<img height="300" src="images/esp32_c3_mini.jpg"> <img height="300" src="images/esp32_c3_mini_pinout.jpg"> 
+<img height="300" src="images/esp32_c3_mini.jpg"> <img height="300" src="images/esp32_c3_mini_pinout.jpg">
 
 ### Build and Upload Firmware
 * Make sure you have a decryption key for your meter (you need to ask your water service provider for it).
