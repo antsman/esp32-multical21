@@ -1,0 +1,39 @@
+---
+# Base configuration rules matching Google's standards
+BasedOnStyle: Google
+Language: Cpp
+
+# Indentation configuration
+IndentWidth: 4
+AccessModifierOffset: -4
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+
+# Code layout adjustments
+# Set to 0 to disable line length limits entirely, or 140+ for wide monitors
+ColumnLimit: 140
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+# AllowShortLoopsOnASingleLine: Never
+AlignConsecutiveMacros: Consecutive
+
+# Brace positioning guidelines
+BreakBeforeBraces: Attach
+
+# Pointer/Reference placement (e.g., 'int* ptr' instead of 'int *ptr')
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+# Clean sorting for include headers
+SortIncludes: true
+IncludeBlocks: Regroup
+
+# Macro spacing rules
+SpaceAfterCStyleCast: false
+# SpaceBeforeParents: ControlStatements
+
+# Keeps comments from breaking, preventing the backslash injection
+# CommentPadding: 1
+# AlignTrailingComments: true
+# ReflowComments: false
+---

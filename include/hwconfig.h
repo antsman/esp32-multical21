@@ -10,9 +10,9 @@
 // MISO  => D6
 // SCK   => D5
 // GD0   => D2  A valid interrupt pin for your platform (defined below this)
-// GD2   => not connected 
-  #define CC1101_GDO0         D2   // GDO0 input interrupt pin
-  #define LED_BUILTIN     D4
+// GD2   => not connected
+#define CC1101_GDO0 D2  // GDO0 input interrupt pin
+#define LED_BUILTIN D4
 #elif defined(ESP32)
 // Attach CC1101 pins to ESP32 SPI pins
 // VCC   => 3V3
@@ -22,16 +22,16 @@
 // MISO  => 19
 // SCK   => 18
 // GD0   => 32  any valid interrupt pin for your platform will do
-// GD2   => not connected 
+// GD2   => not connected
 
 // attach CC1101 pins to ESP32 SPI pins
-  #ifdef ESP32C3_SUPERMINI
-    #define CC1101_GDO0          10
-    #define LED_BUILTIN          8
-  #else
-    #define CC1101_GDO0          32
-    #define LED_BUILTIN          2
-  #endif
+#ifdef ESP32C3_SUPERMINI
+#define CC1101_GDO0 10
+#define LED_BUILTIN 8
+#else
+#define CC1101_GDO0 32
+#define LED_BUILTIN 2
+#endif
 #endif
 
-#endif //__HWCONFIG_H__
+#endif  //__HWCONFIG_H__
