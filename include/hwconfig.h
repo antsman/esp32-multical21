@@ -40,8 +40,8 @@
 #define OLED_RST     21
 #define OLED_ADDR    0x3C
 
-// Built-in LED
-#define LED_BUILTIN  35
+// Built-in LED (already defined in board variant, included for reference)
+// #define LED_BUILTIN  35
 
 #elif defined(ESP32)
 // Attach CC1101 pins to ESP32 SPI pins
