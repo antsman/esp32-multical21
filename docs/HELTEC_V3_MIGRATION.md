@@ -134,15 +134,15 @@ The Heltec V3 **requires** specific settings for SX1262:
 - WiFi: Working (connected at 192.168.1.203, RSSI: -88 to -93 dBm)
 - Test Environment: `heltec_v3_test` created and validated
 
-### Phase 2: Radio Driver Migration ⚠️ BLOCKED (80% complete)
+### Phase 2: Radio Driver Migration ✅ COMPLETE (100%)
 - [x] Update `hwconfig.h` with Heltec V3 pin definitions
 - [x] Create `WaterMeter_SX1262.cpp` using RadioLib API
 - [x] Implement sync word detection (0x543D preamble)
 - [x] Port interrupt handling from GDO0 to DIO1
 - [x] Validate SX1262 hardware (LoRa mode works)
-- [ ] **BLOCKED**: Configure FSK mode for WMBus Mode C1
+- [x] **SOLVED**: Configure FSK mode for WMBus Mode C1
 
-**Status**: Blocked at FSK initialization (Commit: fe4ceeb)
+**Status**: ✅ Complete (Commit: 5a56a85)
 
 **What Works**:
 - ✅ SX1262 hardware initialization (LoRa mode via `begin()`)
@@ -153,20 +153,34 @@ The Heltec V3 **requires** specific settings for SX1262:
 - ✅ Receiver operation (stable 120+ seconds)
 - ✅ Driver architecture complete
 
-**Blocker**:
-- ❌ `beginFSK()` fails with error -104 (RADIOLIB_ERR_INVALID_TCXO_VOLTAGE)
-- Tested TCXO voltages: 3.3V, 1.8V, 2.2V, 2.4V, 3.0V - all fail
-- `begin()` works without TCXO parameter (suggests board manages TCXO internally)
-- FSK vs LoRa mode switching not yet solved
+**Solution Found**:
+- ✅ Call `beginFSK()` with **no parameters** (uses safe defaults)
+- ✅ Configure WMBus parameters individually using setter methods
+- ✅ Root cause: Heltec V3 has board-managed TCXO that conflicts with RadioLib's parameter-based init
 
-**Investigation Needed**:
-1. RadioLib Heltec V3 board variant FSK examples
-2. Manual FSK configuration after `begin()` (individual setters)
-3. RadioLib version compatibility with Heltec V3
-4. Direct SX126x register access for FSK mode
-5. Community solutions for Heltec V3 + RadioLib FSK
+**Working Configuration**:
+```cpp
+// Initialize FSK with defaults (avoids TCXO issues)
+radio->beginFSK();
 
-**Test Environment**: `heltec_v3_radio_test` validates hardware
+// Configure WMBus Mode C1 individually
+radio->setFrequency(868.95);           // MHz
+radio->setBitRate(100.0);              // kbps
+radio->setFrequencyDeviation(50.0);    // kHz
+radio->setRxBandwidth(234.3);          // kHz (valid SX1262 value)
+radio->setSyncWord({0x54, 0x3D}, 2);   // WMBus preamble
+radio->variablePacketLengthMode(255);
+```
+
+**Verified Output**:
+```
+FSK mode initialized successfully!
+Frequency: 868.95 MHz
+Bit rate: 100 kbps
+Freq deviation: ±50 kHz
+RX bandwidth: 234.3 kHz
+SX1262 ready for WMBus reception
+```
 
 ### Phase 3: Testing & Validation (3-4 hours)
 - [ ] Test WMBus frame reception from Multical 21
@@ -578,10 +592,10 @@ This migration maintains the original GPL-3.0 license from the upstream project.
 
 ---
 
-**Status**: Phase 1 Complete ✅ | Phase 2 Blocked ⚠️ (80% done)
-**Last Updated**: 2026-05-22
+**Status**: Phase 1 Complete ✅ | Phase 2 Complete ✅ | Phase 3 Ready
+**Last Updated**: 2026-05-23
 **Branch**: `heltec-v3-migration`
-**Commits**: 8 total
-- Phase 1: Hardware validation complete
-- Phase 2: SX1262 driver 80% complete, blocked at FSK initialization
-**Next Step**: Resolve RadioLib FSK + Heltec V3 TCXO compatibility
+**Commits**: 9 total
+- Phase 1: ✅ Hardware validation complete
+- Phase 2: ✅ SX1262 FSK driver complete and operational
+**Next Step**: Test WMBus frame reception from Multical 21 meter
