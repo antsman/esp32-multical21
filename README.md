@@ -20,14 +20,18 @@ Use these arfilliate links to support me!\
 Some cables
 
 #### Option 2: Heltec WiFi LoRa 32 V3 (NEW!)
-**Single integrated board** - no external wiring needed!\
+**Single integrated board** - no external wiring needed!
+
+<img height="200" src="https://heltec.org/wp-content/uploads/2022/11/HTIT-WB32LAF_V3.png">
+
 ✅ ESP32-S3 (dual-core, more powerful)\
 ✅ SX1262 integrated radio (better sensitivity)\
 ✅ Built-in OLED display\
 ✅ USB-C connector\
 ✅ Optional battery operation
 
-See [Heltec V3 Migration Guide](docs/HELTEC_V3_MIGRATION.md) for setup instructions.
+**Buy:** [Heltec WiFi LoRa 32 V3](https://heltec.org/project/wifi-lora-32-v3/)\
+**Docs:** [Heltec V3 Migration Guide](docs/HELTEC_V3_MIGRATION.md)
 
 ### Wiring
 
