@@ -25,7 +25,13 @@
 #include <ArduinoOTA.h>
 #include <PubSubClient.h>
 
+// Use SX1262 implementation for Heltec V3, CC1101 for others
+#ifdef USE_SX1262
+#include "WaterMeter_SX1262.h"
+#else
 #include "WaterMeter.h"
+#endif
+
 #include "credentials.h"
 #include "hwconfig.h"
 
@@ -162,8 +168,22 @@ void mqttCallback(char* topic, byte* payload, unsigned int len) {
 }
 
 bool mqttConnect() {
-    mqttClient.setServer(credentials[cred][2], 1883);
+    // Get MQTT port from credentials (default to 1883 if not specified or invalid)
+    uint16_t mqttPort = 1883;
+    if (credentials[cred][3] != nullptr && credentials[cred][3][0] != '\0') {
+        int port = atoi(credentials[cred][3]);
+        if (port > 0 && port <= 65535) {
+            mqttPort = port;
+        }
+    }
+
+    mqttClient.setServer(credentials[cred][2], mqttPort);
     mqttClient.setCallback(mqttCallback);
+
+    DEBUG_PRINT("Connecting to MQTT broker ");
+    DEBUG_PRINT(credentials[cred][2]);
+    DEBUG_PRINT(" on port ");
+    DEBUG_PRINTLN(mqttPort);
 
     // connect client to retainable last will message
     return mqttClient.connect(ESP_NAME, mqtt_user, mqtt_pass, "watermeter/0/online", 0, true, "False");
@@ -327,6 +347,12 @@ void loop() {
             break;
 
         case StateMqttConnect:
+#ifdef DISABLE_MQTT
+            // Skip MQTT for radio testing
+            DEBUG_PRINTLN("MQTT disabled - going directly to operating state");
+            ControlState = StateOperating;
+            break;
+#else
             DEBUG_PRINTLN("StateMqttConnect:");
             digitalWrite(LED_BUILTIN, HIGH);  // off
 
@@ -349,8 +375,16 @@ void loop() {
             ArduinoOTA.handle();
 
             break;
+#endif
 
         case StateConnected:
+#ifdef DISABLE_MQTT
+            // Skip MQTT subscription for radio testing
+            ControlState = StateOperating;
+            digitalWrite(LED_BUILTIN, LOW);  // on
+            DEBUG_PRINTLN("StateOperating (MQTT disabled):");
+            break;
+#else
             DEBUG_PRINTLN("StateConnected:");
 
             if (!mqttClient.connected()) {
@@ -368,6 +402,7 @@ void loop() {
             ArduinoOTA.handle();
 
             break;
+#endif
 
         case StateOperating:
             // DEBUG_PRINTLN("StateOperating:");
@@ -377,10 +412,12 @@ void loop() {
                 break;  // exit (hopefully switch statement)
             }
 
+#ifndef DISABLE_MQTT
             if (!mqttClient.connected()) {
                 DEBUG_PRINTLN("not connected to MQTT server");
                 ControlState = StateMqttConnect;
             }
+#endif
 
             // here we go
             waterMeterLoop();

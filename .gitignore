@@ -1,3 +1,6 @@
 .pio
 .vscode
 src/credentials.h
+
+# Claude Code project files
+.claude/

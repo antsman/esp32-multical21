@@ -30,8 +30,12 @@ WMBusFrame::WMBusFrame() {
 
 void WMBusFrame::check() {
     // check meterId
+    DEBUG_PRINTF("MeterId check: Config=[%02X %02X %02X %02X] Frame=[%02X %02X %02X %02X] ", meterId[0], meterId[1], meterId[2], meterId[3],
+                 payload[6], payload[5], payload[4], payload[3]);
+
     for (uint8_t i = 0; i < 4; i++) {
         if (meterId[i] != payload[6 - i]) {
+            DEBUG_PRINTF("MISMATCH\n\r");
             isValid = false;
             return;
         }
