@@ -26,12 +26,12 @@ Some cables
 
 ✅ ESP32-S3 (dual-core, more powerful)\
 ✅ SX1262 integrated radio (better sensitivity)\
-✅ Built-in OLED display\
+✅ Built-in OLED display (shows readings in real-time!)\
 ✅ USB-C connector\
 ✅ Optional battery operation
 
 **Buy:** [Heltec WiFi LoRa 32 V3](https://heltec.org/project/wifi-lora-32-v3/)\
-**Docs:** [Heltec V3 Migration Guide](docs/HELTEC_V3_MIGRATION.md)
+**Docs:** [Heltec V3 Migration Guide](docs/HELTEC_V3_MIGRATION.md) | [Display Guide](docs/DISPLAY.md)
 
 ### Wiring
 

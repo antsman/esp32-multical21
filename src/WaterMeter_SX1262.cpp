@@ -209,11 +209,8 @@ bool WaterMeter::isFrameAvailable(void) {
         // Disable interrupt while processing
         radio->clearDio1Action();
 
-        // Create frame object
-        WMBusFrame frame;
-
-        // Receive and process the frame
-        receive(&frame);
+        // Receive and process the frame into lastFrame
+        receive(&lastFrame);
 
         // Re-enable interrupt for next packet
         radio->setDio1Action(onReceive);
@@ -225,7 +222,7 @@ bool WaterMeter::isFrameAvailable(void) {
             DEBUG_PRINTLN(state);
         }
 
-        return frame.isValid;
+        return lastFrame.isValid;
     }
     return false;
 }

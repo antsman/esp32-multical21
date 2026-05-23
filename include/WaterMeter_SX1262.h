@@ -29,6 +29,9 @@ private:
     // Receive a WMBus frame
     void receive(WMBusFrame* frame);
 
+    // Last received frame data
+    WMBusFrame lastFrame;
+
 public:
     // Constructor
     WaterMeter(void);
@@ -41,6 +44,9 @@ public:
 
     // Must be called frequently, returns true if a valid frame was received
     bool isFrameAvailable(void);
+
+    // Get the last received frame
+    const WMBusFrame& getLastFrame(void) const { return lastFrame; }
 
     // Get RSSI of last received packet (dBm)
     int16_t getRSSI(void);
