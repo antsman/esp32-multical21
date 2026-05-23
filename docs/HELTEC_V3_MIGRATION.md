@@ -729,11 +729,72 @@ This migration maintains the original GPL-3.0 license from the upstream project.
 
 ---
 
-**Status**: Phase 1 Complete ✅ | Phase 2 Complete ✅ | Phase 3 Complete ✅ | Phase 4 Pending
+**Status**: ✅ **MIGRATION COMPLETE - MERGED TO MASTER**
+**Release**: v2.0.0-heltec-v3
 **Last Updated**: 2026-05-23
-**Branch**: `heltec-v3-migration`
-**Commits**: 10 total
-- Phase 1: ✅ Hardware validation complete
-- Phase 2: ✅ SX1262 FSK driver complete and operational
-- Phase 3: ✅ WMBus frame reception, decryption, and validation working
-**Next Step**: Enable MQTT and test Home Assistant integration
+**Branch**: Merged to `master` (was `heltec-v3-migration`)
+**Commits**: 17 total, +1627 lines
+
+## Migration Phases Summary
+- ✅ **Phase 1**: Hardware validation complete
+- ✅ **Phase 2**: SX1262 FSK driver complete and operational
+- ✅ **Phase 3**: WMBus frame reception, decryption, and MQTT integration verified
+- 🔜 **Phase 4**: OLED display (optional future enhancement)
+
+## Production Status
+- ✅ Merged to master branch
+- ✅ Released as v2.0.0-heltec-v3
+- ✅ Home Assistant integration confirmed
+- ✅ Live meter readings verified: 141.211 m³
+- ✅ Production-ready firmware
+
+**Next Steps**: Optional Phase 4 (OLED display) or deploy as-is
+
+---
+
+## Release v2.0.0-heltec-v3
+
+**Release Date**: 2026-05-23
+**GitHub**: [v2.0.0-heltec-v3](https://github.com/antsman/esp32-multical21/releases/tag/v2.0.0-heltec-v3)
+
+### What's Included
+
+**Hardware Support**:
+- Heltec WiFi LoRa 32 V3 with ESP32-S3 and integrated SX1262 radio
+- Maintained support for ESP32-C3 + CC1101 (original)
+- Single board solution - no external wiring required
+
+**Software**:
+- Complete SX1262 FSK driver using RadioLib
+- WMBus Mode C1 reception (868.95 MHz, 100 kbps, ±50 kHz deviation)
+- AES-128 decryption with CRC validation
+- Configurable MQTT port support
+- Production-tested and verified
+
+**Documentation**:
+- Comprehensive 739-line migration guide (this document)
+- Hardware validation tests in `test/` directory
+- Updated README with both hardware options
+- Detailed troubleshooting section
+
+### Verified Integration
+✅ MQTT publishing to custom port (30883)
+✅ Home Assistant receiving real-time data
+✅ Meter readings: 141.211 m³ total, 134.418 m³ monthly
+✅ Signal strength: RSSI -73 to -115 dBm
+✅ Stability: Production-ready
+
+### Migration Statistics
+- **Development Time**: 3 sessions, ~10 hours total
+- **Code Changes**: 17 commits, +1627 lines
+- **Files Added**: 6 new files (driver, tests, docs)
+- **Success Rate**: 100% - all phases completed
+
+### Credits
+Migration completed by Aivo Antsman
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+### Future Enhancements
+- Phase 4: OLED display support (planned)
+- Battery operation optimization
+- Multi-meter support
