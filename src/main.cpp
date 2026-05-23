@@ -333,6 +333,12 @@ void loop() {
             break;
 
         case StateMqttConnect:
+#ifdef DISABLE_MQTT
+            // Skip MQTT for radio testing
+            DEBUG_PRINTLN("MQTT disabled - going directly to operating state");
+            ControlState = StateOperating;
+            break;
+#else
             DEBUG_PRINTLN("StateMqttConnect:");
             digitalWrite(LED_BUILTIN, HIGH);  // off
 
@@ -355,8 +361,16 @@ void loop() {
             ArduinoOTA.handle();
 
             break;
+#endif
 
         case StateConnected:
+#ifdef DISABLE_MQTT
+            // Skip MQTT subscription for radio testing
+            ControlState = StateOperating;
+            digitalWrite(LED_BUILTIN, LOW);  // on
+            DEBUG_PRINTLN("StateOperating (MQTT disabled):");
+            break;
+#else
             DEBUG_PRINTLN("StateConnected:");
 
             if (!mqttClient.connected()) {
@@ -374,6 +388,7 @@ void loop() {
             ArduinoOTA.handle();
 
             break;
+#endif
 
         case StateOperating:
             // DEBUG_PRINTLN("StateOperating:");
@@ -383,10 +398,12 @@ void loop() {
                 break;  // exit (hopefully switch statement)
             }
 
+#ifndef DISABLE_MQTT
             if (!mqttClient.connected()) {
                 DEBUG_PRINTLN("not connected to MQTT server");
                 ControlState = StateMqttConnect;
             }
+#endif
 
             // here we go
             waterMeterLoop();

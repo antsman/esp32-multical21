@@ -203,8 +203,6 @@ void WaterMeter::begin() {
 // Check if a frame is available (call frequently from main loop)
 bool WaterMeter::isFrameAvailable(void) {
     if (packetReceived) {
-        DEBUG_PRINTLN("Packet interrupt detected");
-
         // Clear the flag
         packetReceived = false;
 
@@ -241,52 +239,50 @@ void WaterMeter::receive(WMBusFrame* frame) {
         // Get packet length
         size_t len = radio->getPacketLength();
 
-        DEBUG_PRINT("Received packet, length: ");
-        DEBUG_PRINTLN(len);
-
         // WMBus Mode C1 frame format:
-        // Byte 0: Preamble byte 1 (0x54) - already matched by sync word
-        // Byte 1: Preamble byte 2 (0x3D) - already matched by sync word
-        // Byte 2: Length field (L-field)
-        // Byte 3+: Actual frame data
+        // Buffer contains: [0x3D] [Length] [C-field] [Manufacturer] [Address] ...
+        // RadioLib partially strips sync word (0x54), keeps 0x3D
 
-        // Check if we have at least preamble + length field
-        if (len >= 3) {
-            // Check preamble (sync word should have already matched this)
-            if (buffer[0] == 0x54 && buffer[1] == 0x3D) {
-                uint8_t payloadLength = buffer[2];
+        // Check if we have sync word remnant and length field
+        if (len >= 2 && buffer[0] == 0x3D) {
+            uint8_t payloadLength = buffer[1];  // L-field at buffer[1]
 
-                DEBUG_PRINT("WMBus frame length field: ");
-                DEBUG_PRINTLN(payloadLength);
+            // Actual frame length should be: 0x3D + L-field + payload
+            size_t expectedLen = 2 + payloadLength;
 
-                // Validate length
-                if (payloadLength < WMBusFrame::MAX_LENGTH && (payloadLength + 3) <= len) {
-                    frame->length = payloadLength;
+            // Show frame for analysis (only expected length)
+            DEBUG_PRINT("Frame[");
+            DEBUG_PRINT(expectedLen);
+            DEBUG_PRINT("]: ");
+            for (size_t i = 0; i < expectedLen && i < len; i++) {
+                DEBUG_PRINTF("%02X ", buffer[i]);
+            }
+            DEBUG_PRINT(" RSSI=");
+            DEBUG_PRINT(getRSSI());
+            DEBUG_PRINT("dBm ");
 
-                    // Copy payload (skip preamble and length field)
-                    for (int i = 0; i < payloadLength; i++) {
-                        frame->payload[i] = buffer[i + 3];
-                    }
+            // Validate length
+            if (payloadLength < WMBusFrame::MAX_LENGTH && expectedLen <= len) {
+                frame->length = payloadLength;
 
-                    // Decode and validate the frame
-                    frame->decode();
+                // Copy payload (skip 0x3D at buffer[0] AND L-field at buffer[1])
+                for (int i = 0; i < payloadLength; i++) {
+                    frame->payload[i] = buffer[i + 2];
+                }
 
-                    if (frame->isValid) {
-                        DEBUG_PRINTLN("Valid WMBus frame received!");
-                        DEBUG_PRINT("RSSI: ");
-                        DEBUG_PRINT(getRSSI());
-                        DEBUG_PRINTLN(" dBm");
-                    } else {
-                        DEBUG_PRINTLN("Frame validation failed (CRC or meter ID mismatch)");
-                    }
+                // Decode and validate the frame
+                frame->decode();
+
+                if (frame->isValid) {
+                    DEBUG_PRINTLN("✓✓✓ VALID! ✓✓✓");
                 } else {
-                    DEBUG_PRINTLN("Invalid payload length");
+                    DEBUG_PRINTLN("x");
                 }
             } else {
-                DEBUG_PRINTLN("Invalid preamble (should not happen after sync word match)");
+                DEBUG_PRINTLN("LenErr");
             }
         } else {
-            DEBUG_PRINTLN("Packet too short for WMBus frame");
+            DEBUG_PRINTLN("Short");
         }
     } else {
         DEBUG_PRINT("Failed to read data, code: ");
