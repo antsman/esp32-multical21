@@ -35,6 +35,12 @@ public:
     // payload data
     uint8_t payload[MAX_LENGTH];
 
+    // Decoded meter data (available after successful decode)
+    float currentValue = 0.0f;
+    float monthStartValue = 0.0f;
+    int16_t waterTemp = 0;
+    int16_t roomTemp = 0;
+
     // constructor
     WMBusFrame();
 };

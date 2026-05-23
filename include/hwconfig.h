@@ -39,6 +39,7 @@
 #define OLED_SCL     18
 #define OLED_RST     21
 #define OLED_ADDR    0x3C
+#define OLED_VEXT    36  // Power control for display
 
 // Built-in LED (already defined in board variant, included for reference)
 // #define LED_BUILTIN  35

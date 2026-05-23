@@ -134,6 +134,12 @@ void WMBusFrame::printMeterInfo(uint8_t* data, size_t len) {
     snprintf(mqttjsondstring, sizeof(mqttjsondstring),
              "{\"CurrentValue\": %d.%03d,\"MonthStartValue\": %d.%03d,\"WaterTemp\": %2d,\"RoomTemp\": %2d}", tt / 1000, tt % 1000,
              tg / 1000, tg % 1000, data[pos_ft], data[pos_at]);
+
+    // Store decoded values for display
+    currentValue = tt / 1000.0f;
+    monthStartValue = tg / 1000.0f;
+    waterTemp = data[pos_ft];
+    roomTemp = data[pos_at];
 #endif
     mqttMyDataJson(mqttjsondstring);
 }

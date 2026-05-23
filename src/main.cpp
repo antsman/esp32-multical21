@@ -32,8 +32,13 @@
 #include "WaterMeter.h"
 #endif
 
+#include "WMbusFrame.h"
 #include "credentials.h"
 #include "hwconfig.h"
+
+#ifdef HELTEC_V3
+#include "display.h"
+#endif
 
 #define ESP_NAME "WaterMeter"
 
@@ -282,7 +287,15 @@ void setupOTA() {
 // receive encrypted packets -> send it via MQTT to decrypter
 void waterMeterLoop() {
     if (waterMeter.isFrameAvailable()) {
-        // publish meter info via MQTT
+        // publish meter info via MQTT (done in WMBusFrame::printMeterInfo)
+
+#ifdef HELTEC_V3
+        // Update display with new meter data
+        const WMBusFrame& frame = waterMeter.getLastFrame();
+        if (frame.isValid) {
+            displayShowWaterMeterData(frame.currentValue, frame.monthStartValue, frame.roomTemp, frame.waterTemp);
+        }
+#endif
     }
 }
 
@@ -292,10 +305,20 @@ void setup() {
 
     DEBUG_BEGIN(115200);
 
+#ifdef HELTEC_V3
+    displayInit();
+    delay(1000);
+#endif
+
     blink(100);
     waterMeter.begin();
     digitalWrite(LED_BUILTIN, LOW);  // off
     DEBUG_PRINTLN("Setup done...");
+
+#ifdef HELTEC_V3
+    displayShowStatus("Setup complete");
+    delay(500);
+#endif
 }
 
 enum ControlStateType { StateInit, StateNotConnected, StateWifiConnect, StateMqttConnect, StateConnected, StateOperating };
@@ -319,6 +342,9 @@ void loop() {
         case StateWifiConnect:
             // DEBUG_PRINTLN("StateWifiConnect:");
             //  station mode
+#ifdef HELTEC_V3
+            displayShowStatus("Connecting WiFi...");
+#endif
             blink(200);
             ConnectWifi();
 
@@ -331,12 +357,24 @@ void loop() {
                 DEBUG_PRINT("IP address: ");
                 DEBUG_PRINTLN(WiFi.localIP());
 
+                IPAddress MyIP = WiFi.localIP();
+                snprintf(MyIp, 16, "%d.%d.%d.%d", MyIP[0], MyIP[1], MyIP[2], MyIP[3]);
+
+#ifdef HELTEC_V3
+                displayShowWifiStatus(credentials[cred][0], MyIp);
+                delay(2000);
+#endif
+
                 setupOTA();
 
                 ControlState = StateMqttConnect;
             } else {
                 DEBUG_PRINTLN("");
                 DEBUG_PRINTLN("Connection failed.");
+
+#ifdef HELTEC_V3
+                displayShowError("WiFi failed");
+#endif
 
                 // try again
                 ControlState = StateNotConnected;
@@ -350,6 +388,10 @@ void loop() {
 #ifdef DISABLE_MQTT
             // Skip MQTT for radio testing
             DEBUG_PRINTLN("MQTT disabled - going directly to operating state");
+#ifdef HELTEC_V3
+            displayShowStatus("MQTT disabled");
+            delay(1000);
+#endif
             ControlState = StateOperating;
             break;
 #else
@@ -363,6 +405,10 @@ void loop() {
 
             DEBUG_PRINT("try to connect to MQTT server ");
             DEBUG_PRINTLN(credentials[cred][2]);  // FIXME
+
+#ifdef HELTEC_V3
+            displayShowMqttStatus(false, credentials[cred][2]);
+#endif
 
             if (mqttConnect()) {
                 ControlState = StateConnected;
@@ -393,6 +439,12 @@ void loop() {
             } else {
                 // subscribe to given topics
                 mqttSubscribe();
+
+#ifdef HELTEC_V3
+                displayShowMqttStatus(true, credentials[cred][2]);
+                delay(2000);
+                displayShowStatus("Ready");
+#endif
 
                 ControlState = StateOperating;
                 digitalWrite(LED_BUILTIN, LOW);  // off
