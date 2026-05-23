@@ -168,8 +168,22 @@ void mqttCallback(char* topic, byte* payload, unsigned int len) {
 }
 
 bool mqttConnect() {
-    mqttClient.setServer(credentials[cred][2], 1883);
+    // Get MQTT port from credentials (default to 1883 if not specified or invalid)
+    uint16_t mqttPort = 1883;
+    if (credentials[cred][3] != nullptr && credentials[cred][3][0] != '\0') {
+        int port = atoi(credentials[cred][3]);
+        if (port > 0 && port <= 65535) {
+            mqttPort = port;
+        }
+    }
+
+    mqttClient.setServer(credentials[cred][2], mqttPort);
     mqttClient.setCallback(mqttCallback);
+
+    DEBUG_PRINT("Connecting to MQTT broker ");
+    DEBUG_PRINT(credentials[cred][2]);
+    DEBUG_PRINT(" on port ");
+    DEBUG_PRINTLN(mqttPort);
 
     // connect client to retainable last will message
     return mqttClient.connect(ESP_NAME, mqtt_user, mqtt_pass, "watermeter/0/online", 0, true, "False");
