@@ -58,67 +58,63 @@ void WaterMeter::begin() {
 
     DEBUG_PRINTLN("Configuring SX1262 FSK mode...");
 
-    // Valid TCXO voltages for SX1262: 1.6, 1.7, 1.8, 2.2, 2.4, 2.7, 3.0, 3.3V
-    // Try different voltages to find which one works with Heltec V3
-    float tcxoVoltages[] = {3.3, 1.8, 2.2, 2.4, 3.0};
-    int state = RADIOLIB_ERR_UNKNOWN;
+    // Heltec V3 has board-managed TCXO (always-on, hardware controlled)
+    // Try using beginFSK() with no parameters, then configure manually
+    DEBUG_PRINTLN("Initializing FSK mode with defaults...");
 
-    for (int i = 0; i < 5; i++) {
-        DEBUG_PRINT("Trying TCXO voltage: ");
-        DEBUG_PRINT(tcxoVoltages[i]);
-        DEBUG_PRINTLN("V");
+    // Call beginFSK() with no parameters to use defaults
+    // This avoids TCXO configuration issues
+    int state = radio->beginFSK();
 
-        state = radio->beginFSK(868.95,           // Frequency (MHz) - WMBus Mode C1
-                                100.0,            // Bit rate (kbps)
-                                50.0,             // Frequency deviation (kHz)
-                                200.0,            // RX bandwidth (kHz)
-                                10,               // TX power (dBm)
-                                16,               // Preamble length (bits)
-                                tcxoVoltages[i],  // TCXO voltage
-                                false             // useRegulatorLDO
-        );
-
-        if (state == RADIOLIB_ERR_NONE) {
-            DEBUG_PRINT("Success with TCXO=");
-            DEBUG_PRINT(tcxoVoltages[i]);
-            DEBUG_PRINTLN("V");
-            break;
-        } else {
-            DEBUG_PRINT("  Failed, code: ");
-            DEBUG_PRINTLN(state);
-        }
-    }
-
-    if (state != RADIOLIB_ERR_NONE) {
-        DEBUG_PRINT("All TCXO voltages failed. Last error: ");
+    if (state == RADIOLIB_ERR_NONE) {
+        DEBUG_PRINTLN("FSK mode initialized successfully!");
+    } else {
+        DEBUG_PRINT("beginFSK() failed, code: ");
         DEBUG_PRINTLN(state);
-        DEBUG_PRINTLN("Trying begin() with default LoRa, then switch to FSK...");
-
-        // Use default LoRa begin (which works), then manually configure for FSK
-        state = radio->begin();
-        if (state != RADIOLIB_ERR_NONE) {
-            DEBUG_PRINT("begin() also failed, code: ");
-            DEBUG_PRINTLN(state);
-            return;
-        }
-
-        DEBUG_PRINTLN("Basic begin() succeeded (LoRa mode)");
-
-        // Note: We're in LoRa mode now, not FSK
-        // For initial testing, we'll try to receive anyway
-        // A proper fix requires understanding why beginFSK() fails with all TCXO voltages
-
-        // Set frequency to WMBus
-        state = radio->setFrequency(868.95);
-        if (state == RADIOLIB_ERR_NONE) {
-            DEBUG_PRINTLN("Frequency set: 868.95 MHz");
-        } else {
-            DEBUG_PRINT("Failed to set frequency, code: ");
-            DEBUG_PRINTLN(state);
-        }
+        return;
     }
 
-    DEBUG_PRINTLN("SX1262 FSK mode configured");
+    // Now configure WMBus Mode C1 parameters manually
+    DEBUG_PRINTLN("Configuring WMBus Mode C1 parameters...");
+
+    // Set frequency for WMBus Mode C1
+    state = radio->setFrequency(868.95);
+    if (state == RADIOLIB_ERR_NONE) {
+        DEBUG_PRINTLN("Frequency: 868.95 MHz");
+    } else {
+        DEBUG_PRINT("setFrequency failed, code: ");
+        DEBUG_PRINTLN(state);
+    }
+
+    // Set bit rate
+    state = radio->setBitRate(100.0);
+    if (state == RADIOLIB_ERR_NONE) {
+        DEBUG_PRINTLN("Bit rate: 100 kbps");
+    } else {
+        DEBUG_PRINT("setBitRate failed, code: ");
+        DEBUG_PRINTLN(state);
+    }
+
+    // Set frequency deviation
+    state = radio->setFrequencyDeviation(50.0);
+    if (state == RADIOLIB_ERR_NONE) {
+        DEBUG_PRINTLN("Freq deviation: ±50 kHz");
+    } else {
+        DEBUG_PRINT("setFrequencyDeviation failed, code: ");
+        DEBUG_PRINTLN(state);
+    }
+
+    // Set RX bandwidth (must use predefined SX1262 values)
+    // Valid values: 4.8, 5.8, 7.3, 9.7, 11.7, 14.6, 19.5, 23.4, 29.3, 39.0,
+    //               46.9, 58.6, 78.2, 93.8, 117.3, 156.2, 187.2, 234.3, 312.0, 373.6, 467.0 kHz
+    // WMBus typically uses 200-300 kHz, so 234.3 is closest
+    state = radio->setRxBandwidth(234.3);
+    if (state == RADIOLIB_ERR_NONE) {
+        DEBUG_PRINTLN("RX bandwidth: 234.3 kHz");
+    } else {
+        DEBUG_PRINT("setRxBandwidth failed, code: ");
+        DEBUG_PRINTLN(state);
+    }
 
     // Configure sync word for WMBus preamble (0x543D)
     uint8_t syncWord[] = {0x54, 0x3D};
