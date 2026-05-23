@@ -14,7 +14,7 @@
 ### Hardware Options
 
 #### Option 1: ESP32-C3 + CC1101 (Original)
-Use these arfilliate links to support me!\
+**Hardware Links** (from original author [@pthalin](https://github.com/pthalin)):\
 [CC1101 Module](https://s.click.aliexpress.com/e/_oDW0qJ2) \
 [ESP32-C3 Super Mini](https://s.click.aliexpress.com/e/_c3HOPvoX) \
 Some cables
@@ -115,7 +115,25 @@ mqtt:
       unit_of_measurement: "°C"
 ```
 
-Donation using [Ko-Fi](https://ko-fi.com/patriksretrotech) or [PayPal](https://www.paypal.com/donate/?business=UCTJFD6L7UYFL&no_recurring=0&item_name=Please+support+me%21&currency_code=SEK) are highly appreciated!
+## Support This Project
 
-This is a based on [chester4444/esp-multical21](https://github.com/chester4444/esp-multical21).
-Thanks to chester4444for his effort.
+### Heltec V3 + Display Implementation
+If the Heltec V3 migration or OLED display features helped you:
+- ☕ [Buy me a coffee](https://ko-fi.com/aivoantsman)
+- 💳 [PayPal donation](https://paypal.me/aivoantsman)
+
+### Original Project
+Support the original authors who made this possible:
+- 💰 [Patrik (ESP32-C3 port)](https://ko-fi.com/patriksretrotech) | [PayPal](https://www.paypal.com/donate/?business=UCTJFD6L7UYFL&no_recurring=0&item_name=Please+support+me%21&currency_code=SEK)
+- 🌟 Star [chester4444/esp-multical21](https://github.com/chester4444/esp-multical21) (original implementation)
+
+## Credits
+
+**This fork adds:**
+- Heltec WiFi LoRa 32 V3 support with SX1262 radio
+- Real-time OLED display with button navigation
+- Enhanced MQTT configuration
+
+**Based on excellent work by:**
+- [@chester4444](https://github.com/chester4444/esp-multical21) - Original ESP8266/ESP32 implementation
+- [@pthalin](https://github.com/pthalin/esp32-multical21) - ESP32-C3 port and improvements
