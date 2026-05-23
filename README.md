@@ -22,7 +22,7 @@ Some cables
 #### Option 2: Heltec WiFi LoRa 32 V3 (NEW!)
 **Single integrated board** - no external wiring needed!
 
-<img height="200" src="images/heltec_v3_board.png">
+<img height="200" src="images/heltec_v3_product.jpg">
 
 ✅ ESP32-S3 (dual-core, more powerful)\
 ✅ SX1262 integrated radio (better sensitivity)\
