@@ -8,15 +8,30 @@
  * CRC Check of recived data.
  * Wireless reading of data.
  * Easy to build and configure.
+ * **NEW**: Heltec V3 support with integrated SX1262 radio!
 
 
-### Parts
+### Hardware Options
+
+#### Option 1: ESP32-C3 + CC1101 (Original)
 Use these arfilliate links to support me!\
 [CC1101 Module](https://s.click.aliexpress.com/e/_oDW0qJ2) \
 [ESP32-C3 Super Mini](https://s.click.aliexpress.com/e/_c3HOPvoX) \
 Some cables
 
+#### Option 2: Heltec WiFi LoRa 32 V3 (NEW!)
+**Single integrated board** - no external wiring needed!\
+✅ ESP32-S3 (dual-core, more powerful)\
+✅ SX1262 integrated radio (better sensitivity)\
+✅ Built-in OLED display\
+✅ USB-C connector\
+✅ Optional battery operation
+
+See [Heltec V3 Migration Guide](docs/HELTEC_V3_MIGRATION.md) for setup instructions.
+
 ### Wiring
+
+#### ESP32-C3 Super Mini + CC1101
 
 | CC1101 | ESP32-C3 Super Mini |
 | --- | --- |
@@ -29,16 +44,38 @@ Some cables
 | GD0 | 10 |
 | GD2 | Not Connected |
 
-
 <img height="300" src="images/esp32_c3_mini.jpg"> <img height="300" src="images/esp32_c3_mini_pinout.jpg">
 
+#### Heltec WiFi LoRa 32 V3
+
+**No wiring needed!** The SX1262 radio is integrated on the board.
+
+Just connect via USB-C for power and programming.
+
 ### Build and Upload Firmware
-* Make sure you have a decryption key for your meter (you need to ask your water service provider for it).
-* Read the serial number on the meter (typically S/N: XXXXXXXX/A/20, the serial number is the XXXXXXXXX part).
-* Rename credentials_template.h to credentials.h and add your details.
-* Compile and upload:
-  - You need [VS Code](https://code.visualstudio.com/) and the [PIO Plugin](https://platformio.org/)
-  - Open the project folder with the platformio.ini file (File -> Open Folder...), connect the ESP32 via USB then build and upload with Ctrl+Alt+U.
+
+**Prerequisites:**
+* Get your meter's decryption key (ask your water service provider)
+* Read the serial number from your meter (typically S/N: XXXXXXXX/A/20)
+* Install [VS Code](https://code.visualstudio.com/) and [PlatformIO](https://platformio.org/)
+
+**Setup:**
+1. Copy `src/credentials_template.h` to `src/credentials.h`
+2. Edit `src/credentials.h`:
+   - Add your WiFi credentials
+   - Add MQTT broker details
+   - Add meter serial number in **BCD format** (see template for examples)
+   - Add your AES-128 decryption key
+
+**Build and Upload:**
+- Open the project folder in VS Code (File -> Open Folder...)
+- Select your PlatformIO environment:
+  - `esp32c3_supermini` - for ESP32-C3 + CC1101
+  - `heltec_v3` - for Heltec WiFi LoRa 32 V3
+- Connect your board via USB
+- Build and upload: Ctrl+Alt+U (or click Upload in PlatformIO toolbar)
+
+**Note**: For Heltec V3 setup details, see [Migration Guide](docs/HELTEC_V3_MIGRATION.md)
 
 ### Home Assistant
 
