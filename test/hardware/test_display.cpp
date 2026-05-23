@@ -48,7 +48,7 @@ void setup() {
 
     // Test water meter data
     Serial.println("6. Testing water meter data...");
-    displayShowWaterMeterData(123.456, 100.250, 22.5, 18.3);
+    displayShowWaterMeterData(123.456, 100.250, 22.5, 18.3, -98);
     delay(5000);
 
     // Test error display
@@ -72,7 +72,7 @@ void loop() {
 
         switch (displayState) {
             case 0:
-                displayShowWaterMeterData(123.456 + random(0, 10) / 10.0, 100.250, 22.5, 18.3);
+                displayShowWaterMeterData(123.456 + random(0, 10) / 10.0, 100.250, 22.5, 18.3, -98 - random(0, 20));
                 break;
             case 1:
                 displayShowStatus("Ready");

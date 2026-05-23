@@ -41,6 +41,9 @@
 #define OLED_ADDR    0x3C
 #define OLED_VEXT    36  // Power control for display
 
+// User Button (PRG button)
+#define USER_BUTTON  0
+
 // Built-in LED (already defined in board variant, included for reference)
 // #define LED_BUILTIN  35
 

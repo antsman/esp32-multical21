@@ -52,6 +52,12 @@ PubSubClient mqttClient(espMqttClient);
 char MyIp[16];
 int cred = -1;
 
+#ifdef HELTEC_V3
+// Display state
+int8_t lastWifiRssi = 0;
+uint16_t mqttPort = 1883;
+#endif
+
 void blink(unsigned int t) {
     for (int i = 0; i < 20; i++) {
         digitalWrite(LED_BUILTIN, LOW);  // off
@@ -174,7 +180,11 @@ void mqttCallback(char* topic, byte* payload, unsigned int len) {
 
 bool mqttConnect() {
     // Get MQTT port from credentials (default to 1883 if not specified or invalid)
+#ifdef HELTEC_V3
+    mqttPort = 1883;
+#else
     uint16_t mqttPort = 1883;
+#endif
     if (credentials[cred][3] != nullptr && credentials[cred][3][0] != '\0') {
         int port = atoi(credentials[cred][3]);
         if (port > 0 && port <= 65535) {
@@ -290,13 +300,34 @@ void waterMeterLoop() {
         // publish meter info via MQTT (done in WMBusFrame::printMeterInfo)
 
 #ifdef HELTEC_V3
-        // Update display with new meter data
+        // Update display with new meter data (only if on meter screen)
         const WMBusFrame& frame = waterMeter.getLastFrame();
-        if (frame.isValid) {
-            displayShowWaterMeterData(frame.currentValue, frame.monthStartValue, frame.roomTemp, frame.waterTemp);
+        if (frame.isValid && displayGetCurrentScreen() == 0) {
+            displayShowWaterMeterData(frame.currentValue, frame.monthStartValue, frame.roomTemp, frame.waterTemp, waterMeter.getRSSI());
         }
 #endif
     }
+
+#ifdef HELTEC_V3
+    // Handle button press to cycle screens
+    if (displayButtonPressed()) {
+        displayNextScreen();
+
+        // Show appropriate screen
+        if (displayGetCurrentScreen() == 0) {
+            // Screen 0: Meter data
+            const WMBusFrame& frame = waterMeter.getLastFrame();
+            if (frame.isValid) {
+                displayShowWaterMeterData(frame.currentValue, frame.monthStartValue, frame.roomTemp, frame.waterTemp, waterMeter.getRSSI());
+            } else {
+                displayShowStatus("Waiting for data");
+            }
+        } else {
+            // Screen 1: Connection info
+            displayShowConnectionInfo(credentials[cred][0], lastWifiRssi, MyIp, credentials[cred][2], mqttPort);
+        }
+    }
+#endif
 }
 
 void setup() {
@@ -307,6 +338,7 @@ void setup() {
 
 #ifdef HELTEC_V3
     displayInit();
+    displayButtonInit();
     delay(1000);
 #endif
 
@@ -361,6 +393,7 @@ void loop() {
                 snprintf(MyIp, 16, "%d.%d.%d.%d", MyIP[0], MyIP[1], MyIP[2], MyIP[3]);
 
 #ifdef HELTEC_V3
+                lastWifiRssi = WiFi.RSSI();
                 displayShowWifiStatus(credentials[cred][0], MyIp);
                 delay(2000);
 #endif
