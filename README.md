@@ -119,8 +119,8 @@ mqtt:
 
 ### Heltec V3 + Display Implementation
 If the Heltec V3 migration or OLED display features helped you:
-- ☕ [Buy me a coffee](https://ko-fi.com/aivoantsman)
-- 💳 [PayPal donation](https://paypal.me/aivoantsman)
+- ☕ [Buy me a coffee](https://ko-fi.com/antsman)
+- 💳 [PayPal donation](https://paypal.me/namstna)
 
 ### Original Project
 Support the original authors who made this possible:
