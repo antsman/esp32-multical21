@@ -33,6 +33,10 @@ Some cables
 **Buy:** [Heltec WiFi LoRa 32 V3](https://heltec.org/project/wifi-lora-32-v3/)\
 **Docs:** [Heltec V3 Migration Guide](docs/HELTEC_V3_MIGRATION.md) | [Display Guide](docs/DISPLAY.md)
 
+**Working board in Heltec original enclosure:**
+
+<img height="300" src="images/PXL_20260524_095507314.jpg">
+
 ### Wiring
 
 #### ESP32-C3 Super Mini + CC1101
